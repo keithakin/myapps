@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f172a">
+<title>消費券記錄</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel2: #243044;
+    --line: #334155;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --ok: #34d399;
+    --warn: #fbbf24;
+    --used: #64748b;
+    --danger: #f87171;
+    --chip: #0ea5e9;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.45;
+    min-height: 100dvh;
+    padding: 0 0 calc(24px + env(safe-area-inset-bottom));
+  }
+  header {
+    padding: calc(16px + env(safe-area-inset-top)) 16px 12px;
+    position: sticky;
+    top: 0;
+    background: linear-gradient(#0f172aee, #0f172acc);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+    border-bottom: 1px solid var(--line);
+  }
+  h1 { margin: 0; font-size: 22px; font-weight: 700; }
+  .sub { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+  .summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .stat {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+  }
+  .stat b { display: block; font-size: 18px; }
+  .stat span { color: var(--muted); font-size: 12px; }
+  main { padding: 12px 16px; }
+  .platforms {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 12px;
+    scrollbar-width: none;
+  }
+  .platforms::-webkit-scrollbar { display: none; }
+  .plat {
+    flex: 0 0 auto;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--text);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .plat.active {
+    background: var(--accent);
+    color: #0f172a;
+    border-color: var(--accent);
+  }
+  .plat .count {
+    display: inline-block;
+    min-width: 1.4em;
+    margin-left: 4px;
+    opacity: .85;
+    font-weight: 500;
+  }
+  section {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .sec-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 15px;
+    font-weight: 650;
+  }
+  .sec-title small { color: var(--muted); font-weight: 500; }
+  .amounts {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+  .amt {
+    appearance: none;
+    border: 1px solid var(--line);
+    background: var(--panel2);
+    color: var(--text);
+    border-radius: 12px;
+    padding: 12px 4px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .amt:disabled { opacity: .35; }
+  .amt:active:not(:disabled) { background: var(--accent); color: #0f172a; }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 8px; }
+  .list { display: grid; gap: 8px; }
+  .empty {
+    color: var(--muted);
+    text-align: center;
+    padding: 18px 8px;
+    font-size: 14px;
+  }
+  .card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
+    background: var(--panel2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  .card.used { opacity: .55; }
+  .card .amt-label { font-size: 18px; font-weight: 700; }
+  .card .meta { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .actions { display: flex; gap: 6px; }
+  .btn {
+    appearance: none;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .btn.ok { background: #064e3b; border-color: #059669; color: #a7f3d0; }
+  .btn.warn { background: #422006; border-color: #d97706; color: #fde68a; }
+  .btn.danger { background: #450a0a; border-color: #dc2626; color: #fecaca; }
+  details.totals-wrap {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 0;
+    margin-bottom: 12px;
+  }
+  details.totals-wrap > summary {
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 650;
+    cursor: pointer;
+    user-select: none;
+  }
+  details.totals-wrap > summary::-webkit-details-marker { display: none; }
+  details.totals-wrap > summary::after {
+    content: "▸";
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 500;
+    transition: transform .15s ease;
+  }
+  details.totals-wrap[open] > summary::after {
+    transform: rotate(90deg);
+  }
+  details.totals-wrap[open] > summary {
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 0;
+  }
+  .totals-body { padding: 8px 14px 14px; }
+  .totals {
+    display: grid;
+    gap: 6px;
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .row:last-child { border-bottom: 0; font-weight: 700; }
+  .footer-note {
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+    padding: 8px 16px 0;
+  }
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(24px + env(safe-area-inset-bottom));
+    transform: translateX(-50%) translateY(120%);
+    background: #f8fafc;
+    color: #0f172a;
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: transform .25s ease;
+    z-index: 50;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<header>
+  <h1>消費券記錄</h1>
+  <p class="sub" id="weekLabel">本週 · 澳門時間 · 星期五 00:00 歸零</p>
+  <div class="summary">
+    <div class="stat"><b id="sumUnused">$0</b><span>未用</span></div>
+    <div class="stat"><b id="sumUsed">$0</b><span>已用</span></div>
+    <div class="stat"><b id="sumAll">$0</b><span>合計</span></div>
+  </div>
+</header>
+
+<main>
+  <div class="platforms" id="platforms"></div>
+
+  <section>
+    <div class="sec-title"><span>本平台券</span><small id="listCount">0 張</small></div>
+    <div class="list" id="list"></div>
+  </section>
+
+  <section>
+    <div class="sec-title">
+      <span>新增 · <span id="activeName">Mpay</span></span>
+      <small id="slotLabel">還可加 3 張</small>
+    </div>
+    <div class="amounts" id="amounts"></div>
+    <p class="hint">每個平台最多 3 張，金額可重複。點金額即可新增為「未用」。</p>
+  </section>
+
+  <details class="totals-wrap">
+    <summary>本週各平台合計</summary>
+    <div class="totals-body">
+      <div class="totals" id="totals"></div>
+    </div>
+  </details>
+</main>
+
+<p class="footer-note" id="resetHint"></p>
+<div class="toast" id="toast"></div>
+
+<script>
+const PLATFORMS = [
+  { id: 'mpay', name: 'Mpay' },
+  { id: 'boc', name: '中銀' },
+  { id: 'alipay', name: '支付寶' },
+  { id: 'taiFung', name: '大豐' },
+  { id: 'intl', name: '國際' }
+];
+const AMOUNTS = [10, 20, 50, 100, 200];
+const MAX_PER_PLATFORM = 3;
+const STORAGE_KEY = 'macau-coupon-tracker-v1';
+const TZ = 'Asia/Macau';
+
+const $ = (id) => document.getElementById(id);
+
+function macauParts(date = new Date()) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: TZ,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      weekday: 'short',
+      hour12: false
+    }).formatToParts(date).filter(p => p.type !== 'literal').map(p => [p.type, p.value])
+  );
+  // hour can be "24" in some engines for midnight — normalize
+  let hour = Number(parts.hour);
+  if (hour === 24) hour = 0;
+  return {
+    year: Number(parts.year),
+    month: Number(parts.month),
+    day: Number(parts.day),
+    hour,
+    minute: Number(parts.minute),
+    second: Number(parts.second),
+    weekday: parts.weekday // Sun Mon ... Fri
+  };
+}
+
+function weekdayIndex(short) {
+  return { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }[short];
+}
+
+/** Current week starts at Friday 00:00 Macau; returns YYYY-MM-DD of that Friday. */
+function currentWeekId(date = new Date()) {
+  const p = macauParts(date);
+  const dow = weekdayIndex(p.weekday);
+  // days since last Friday 00:00
+  // If Friday and already past/at 00:00 (always true for calendar day Fri), week starts today.
+  // For Sat=6 -> 1 day since Fri; Sun=0 -> 2; Mon=1 -> 3; ... Thu=4 -> 6; Fri=5 -> 0
+  const daysSinceFri = (dow - 5 + 7) % 7;
+  // Build date of Friday in Macau by subtracting days from today's Macau date
+  const utcGuess = Date.UTC(p.year, p.month - 1, p.day) - daysSinceFri * 86400000;
+  const fri = new Date(utcGuess);
+  // format that UTC noon-ish as Macau calendar day — use en-CA on a Macau noon approximation
+  // Safer: walk back day by day in Macau parts
+  let y = p.year, m = p.month, d = p.day;
+  for (let i = 0; i < daysSinceFri; i++) {
+    const prev = new Date(Date.UTC(y, m - 1, d) - 12 * 3600000); // mid previous
+    const pp = macauParts(prev);
+    // Actually stepping with UTC date of Macau Y-M-D at 12:00 Macau
+    const mid = new Date(new Date(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}T12:00:00+08:00`).getTime() - 86400000);
+    const mp = macauParts(mid);
+    y = mp.year; m = mp.month; d = mp.day;
+  }
+  return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+
+function nextResetLabel(date = new Date()) {
+  const id = currentWeekId(date);
+  // next Friday = current week Friday + 7 days
+  const start = new Date(`${id}T00:00:00+08:00`);
+  const next = new Date(start.getTime() + 7 * 86400000);
+  const np = macauParts(next);
+  return `${np.year}年${np.month}月${np.day}日 星期五 00:00`;
+}
+
+function loadState() {
+  const weekId = currentWeekId();
+  let raw = null;
+  try { raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (_) {}
+  if (!raw || raw.weekId !== weekId) {
+    return { weekId, active: 'mpay', coupons: [] };
+  }
+  return {
+    weekId,
+    active: raw.active || 'mpay',
+    coupons: Array.isArray(raw.coupons) ? raw.coupons : []
+  };
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    weekId: state.weekId,
+    active: state.active,
+    coupons: state.coupons
+  }));
+}
+
+let state = loadState();
+
+function toast(msg) {
+  const el = $('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.classList.remove('show'), 1600);
+}
+
+function platformCoupons(pid) {
+  return state.coupons.filter(c => c.platform === pid);
+}
+
+function money(n) {
+  return '$' + n;
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function ensureWeek() {
+  const wid = currentWeekId();
+  if (state.weekId !== wid) {
+    state = { weekId: wid, active: state.active, coupons: [] };
+    saveState();
+    toast('新的一週，記錄已歸零');
+  }
+}
+
+function addCoupon(amount) {
+  ensureWeek();
+  const list = platformCoupons(state.active);
+  if (list.length >= MAX_PER_PLATFORM) {
+    toast('這個平台已滿 3 張');
+    return;
+  }
+  state.coupons.push({
+    id: uid(),
+    platform: state.active,
+    amount,
+    used: false,
+    createdAt: new Date().toISOString()
+  });
+  saveState();
+  render();
+  toast(`已新增 ${money(amount)}`);
+}
+
+function toggleUsed(id) {
+  ensureWeek();
+  const c = state.coupons.find(x => x.id === id);
+  if (!c) return;
+  c.used = !c.used;
+  saveState();
+  render();
+}
+
+function removeCoupon(id) {
+  ensureWeek();
+  state.coupons = state.coupons.filter(x => x.id !== id);
+  saveState();
+  render();
+  toast('已刪除');
+}
+
+function setActive(pid) {
+  state.active = pid;
+  saveState();
+  render();
+}
+
+function renderPlatforms() {
+  const wrap = $('platforms');
+  wrap.innerHTML = '';
+  PLATFORMS.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'plat' + (p.id === state.active ? ' active' : '');
+    btn.type = 'button';
+    const n = platformCoupons(p.id).length;
+    btn.innerHTML = `${p.name}<span class="count">${n}/3</span>`;
+    btn.onclick = () => setActive(p.id);
+    wrap.appendChild(btn);
+  });
+}
+
+function renderAmounts() {
+  const wrap = $('amounts');
+  wrap.innerHTML = '';
+  const left = MAX_PER_PLATFORM - platformCoupons(state.active).length;
+  AMOUNTS.forEach(a => {
+    const btn = document.createElement('button');
+    btn.className = 'amt';
+    btn.type = 'button';
+    btn.textContent = a;
+    btn.disabled = left <= 0;
+    btn.onclick = () => addCoupon(a);
+    wrap.appendChild(btn);
+  });
+  $('slotLabel').textContent = left > 0 ? `還可加 ${left} 張` : '已滿 3 張';
+  $('activeName').textContent = PLATFORMS.find(p => p.id === state.active).name;
+}
+
+function renderList() {
+  const wrap = $('list');
+  const items = platformCoupons(state.active).slice().sort((a, b) => {
+    if (a.used !== b.used) return a.used ? 1 : -1;
+    return b.amount - a.amount;
+  });
+  $('listCount').textContent = `${items.length} 張`;
+  if (!items.length) {
+    wrap.innerHTML = '<div class="empty">還沒有券。上面點金額新增。</div>';
+    return;
+  }
+  wrap.innerHTML = '';
+  items.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'card' + (c.used ? ' used' : '');
+    card.innerHTML = `
+      <div>
+        <div class="amt-label">${money(c.amount)}</div>
+        <div class="meta">${c.used ? '已用' : '未用'}</div>
+      </div>
+      <div class="actions"></div>
+    `;
+    const actions = card.querySelector('.actions');
+    const t = document.createElement('button');
+    t.type = 'button';
+    t.className = 'btn ' + (c.used ? 'warn' : 'ok');
+    t.textContent = c.used ? '改回未用' : '標記已用';
+    t.onclick = () => toggleUsed(c.id);
+    const d = document.createElement('button');
+    d.type = 'button';
+    d.className = 'btn danger';
+    d.textContent = '刪';
+    d.onclick = () => removeCoupon(c.id);
+    actions.append(t, d);
+    wrap.appendChild(card);
+  });
+}
+
+function renderSummary() {
+  let unused = 0, used = 0;
+  state.coupons.forEach(c => {
+    if (c.used) used += c.amount;
+    else unused += c.amount;
+  });
+  $('sumUnused').textContent = money(unused);
+  $('sumUsed').textContent = money(used);
+  $('sumAll').textContent = money(unused + used);
+
+  const totals = $('totals');
+  totals.innerHTML = '';
+  let grand = 0;
+  PLATFORMS.forEach(p => {
+    const list = platformCoupons(p.id);
+    const sum = list.reduce((s, c) => s + c.amount, 0);
+    const u = list.filter(c => !c.used).reduce((s, c) => s + c.amount, 0);
+    grand += sum;
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `<span>${p.name}（${list.length}/3）</span><span>未用 ${money(u)} · 共 ${money(sum)}</span>`;
+    totals.appendChild(row);
+  });
+  const last = document.createElement('div');
+  last.className = 'row';
+  last.innerHTML = `<span>全部</span><span>${money(grand)}</span>`;
+  totals.appendChild(last);
+}
+
+function renderHeader() {
+  const id = state.weekId;
+  const [y, m, d] = id.split('-').map(Number);
+  $('weekLabel').textContent = `本週由 ${y}年${m}月${d}日 星期五 00:00 起（澳門時間）`;
+  $('resetHint').textContent = `下次歸零：${nextResetLabel()}`;
+}
+
+function render() {
+  ensureWeek();
+  renderHeader();
+  renderPlatforms();
+  renderAmounts();
+  renderList();
+  renderSummary();
+}
+
+render();
+setInterval(ensureWeek, 30 * 1000);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) { ensureWeek(); render(); }
+});
+</script>
+</body>
+</html>
