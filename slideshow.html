@@ -427,6 +427,13 @@ button {
   font-size: 0.78rem;
 }
 
+.field-hint {
+  margin: 6px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
   </style>
 </head>
 <body>
@@ -479,6 +486,7 @@ button {
           <div class="field">
             <label for="dwell">停留時間 <span class="value" id="dwellVal">2.0s</span></label>
             <input type="range" id="dwell" min="0.5" max="8" step="0.1" value="2" />
+            <p class="field-hint">匯出會在片尾重覆第一張；首尾停留各為一半，方便循環播放</p>
           </div>
           <div class="field">
             <label for="transDur">轉場時長 <span class="value" id="transDurVal">0.8s</span></label>
@@ -793,16 +801,34 @@ const FPS = 30;
     els.progressBar.style.width = Math.max(0, Math.min(100, pct)) + "%";
   }
 
-  function totalDuration(loop) {
+  /**
+   * Seamless-loop timeline segments.
+   * N>=2: [img0…imgN-1, img0] with half dwell on first & last (closing) segment.
+   * N===1: single full-dwell segment (no duplicate).
+   */
+  function getTimelineSegments() {
     const n = images.length;
-    if (n === 0) return 0;
-    if (n === 1) return state.dwell;
-    const transitions = loop ? n : n - 1;
-    return n * state.dwell + transitions * state.transDur;
+    if (n === 0) return [];
+    if (n === 1) return [{ imageIndex: 0, dwell: state.dwell }];
+    const half = state.dwell / 2;
+    const segs = [{ imageIndex: 0, dwell: half }];
+    for (let i = 1; i < n; i++) {
+      segs.push({ imageIndex: i, dwell: state.dwell });
+    }
+    segs.push({ imageIndex: 0, dwell: half });
+    return segs;
+  }
+
+  function totalDuration() {
+    const segs = getTimelineSegments();
+    if (!segs.length) return 0;
+    if (segs.length === 1) return segs[0].dwell;
+    const dwellSum = segs.reduce((s, seg) => s + seg.dwell, 0);
+    return dwellSum + (segs.length - 1) * state.transDur;
   }
 
   function updateWarn() {
-    const dur = totalDuration(false);
+    const dur = totalDuration();
     const frames = Math.ceil(dur * FPS);
     const parts = [];
     if (images.length > MAX_IMAGES_SOFT) {
@@ -942,20 +968,18 @@ const FPS = 30;
   }
 
   /**
-   * Map time -> which images / transition progress.
-   * Segment: [hold i] then [transition i -> i+1]
-   * loop: after last hold, transition last -> 0
+   * Map time -> still / transition on the seamless timeline.
+   * loop=true wraps one cycle (preview). Export uses loop=false for one pass.
    */
   function resolveFrame(time, loop) {
-    const n = images.length;
-    if (n === 0) return null;
-    if (n === 1) {
-      return { mode: "still", index: 0 };
+    const segs = getTimelineSegments();
+    if (!segs.length) return null;
+    if (segs.length === 1) {
+      return { mode: "still", index: segs[0].imageIndex };
     }
 
-    const dwell = state.dwell;
     const td = state.transDur;
-    const cycle = totalDuration(loop);
+    const cycle = totalDuration();
     let t = time;
     if (loop) {
       t = ((t % cycle) + cycle) % cycle;
@@ -964,26 +988,26 @@ const FPS = 30;
     }
 
     let cursor = 0;
-    const maxTrans = loop ? n : n - 1;
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < segs.length; i++) {
+      const dwell = segs[i].dwell;
       if (t < cursor + dwell) {
-        return { mode: "still", index: i };
+        return { mode: "still", index: segs[i].imageIndex };
       }
       cursor += dwell;
-      if (i < maxTrans) {
+      if (i < segs.length - 1) {
         if (t < cursor + td) {
-          const next = (i + 1) % n;
           return {
             mode: "transition",
-            from: i,
-            to: next,
+            from: segs[i].imageIndex,
+            to: segs[i + 1].imageIndex,
             progress: (t - cursor) / td,
           };
         }
         cursor += td;
       }
     }
-    return { mode: "still", index: n - 1 };
+    const last = segs[segs.length - 1];
+    return { mode: "still", index: last.imageIndex };
   }
 
   function drawAtTime(time, loop) {
@@ -1026,7 +1050,7 @@ const FPS = 30;
       els.progressText.textContent = "尚未上載圖片";
       return;
     }
-    const cycle = totalDuration(true);
+    const cycle = totalDuration();
     const t = cycle ? ((time % cycle) + cycle) % cycle : 0;
     const frame = resolveFrame(t, true);
     let idx = 1;
@@ -1269,7 +1293,7 @@ async function ensureFFmpeg() {
   }
 
   async function renderFrameSequence(onFrame) {
-    const dur = totalDuration(false);
+    const dur = totalDuration();
     const totalFrames = Math.max(1, Math.ceil(dur * FPS));
     const wasPlaying = state.playing;
     pause();
@@ -1423,7 +1447,7 @@ async function ensureFFmpeg() {
 
     recorder.start(200);
 
-    const dur = totalDuration(false);
+    const dur = totalDuration();
     const totalFrames = Math.max(1, Math.ceil(dur * FPS));
     const frameInterval = 1000 / FPS;
     let i = 0;
