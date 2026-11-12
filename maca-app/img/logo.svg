@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="MACA">
+  <defs>
+    <linearGradient id="macaBody" x1="0.15" y1="0" x2="0.95" y2="1">
+      <stop offset="0%" stop-color="#F59BB0" />
+      <stop offset="0%" stop-color="#F1879E"/>
+      <stop offset="42%" stop-color="#E97A96"/>
+      <stop offset="42%" stop-color="#DB618A"/>
+      <stop offset="100%" stop-color="#D45A84"/>
+    </linearGradient>
+    <linearGradient id="macaShine" x1="0" y1="0" x2="0.6" y2="0.8">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.38"/>
+      <stop offset="55%" stop-color="#FFFFFF" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="macaClip">
+      <rect x="0" y="0" width="200" height="200" rx="44" ry="44"/>
+    </clipPath>
+  </defs>
+  <rect x="0" y="0" width="200" height="200" rx="44" ry="44" fill="#DB618A"/>
+  <g clip-path="url(#macaClip)">
+    <!-- lighter upper-left field with a soft diagonal sweep -->
+    <path fill="#F1879E" d="M0 0h200v86C148 70 86 118 0 154V0z"/>
+    <path fill="#DB618A" d="M200 86c-52-16-114 32-200 68v46c0 24 20 44 44 44h112c24 0 44-20 44-44V86z"/>
+    <!-- glossy highlight -->
+    <ellipse cx="46" cy="18" rx="120" ry="70" fill="url(#macaShine)"/>
+    <!-- constellation / route -->
+    <path d="M18 8 L78 62 L156 108 L168 168" fill="none" stroke="#F8EFC8" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="78" cy="62" r="11" fill="#F8EFC8" stroke="#F1879E" stroke-width="2.5"/>
+    <circle cx="156" cy="108" r="11" fill="#F8EFC8" stroke="#DB618A" stroke-width="2.5"/>
+    <circle cx="168" cy="168" r="11" fill="#F8EFC8" stroke="#DB618A" stroke-width="2.5"/>
+  </g>
+  <text x="22" y="176" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="700" letter-spacing="2.5">MACA</text>
+</svg>

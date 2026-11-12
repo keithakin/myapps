@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice">
+  <rect width="800" height="280" fill="#D9EFF2"/>
+  <rect x="0" y="280" width="800" height="220" fill="#F3E6C0"/>
+  <path d="M0 310 Q80 290 160 310 T320 310 T480 310 T640 310 T800 310 V370 Q720 350 640 370 T480 370 T320 370 T160 370 T0 370 Z" fill="#4C4D4F"/>
+  <!-- pastel colonial row -->
+  <rect x="60" y="90" width="200" height="210" fill="#E8A0B0"/>
+  <rect x="85" y="120" width="40" height="50" fill="#F8F4E0"/>
+  <rect x="150" y="120" width="40" height="50" fill="#F8F4E0"/>
+  <rect x="200" y="120" width="40" height="50" fill="#F8F4E0"/>
+  <rect x="130" y="200" width="50" height="100" fill="#F8F4E0"/>
+  <polygon points="50,90 160,40 270,90" fill="#C45A6A"/>
+  <rect x="270" y="70" width="230" height="230" fill="#F7F1E3"/>
+  <polygon points="260,70 385,20 510,70" fill="#F0D56A"/>
+  <rect x="310" y="110" width="50" height="60" rx="4" fill="#54C6C7"/>
+  <rect x="410" y="110" width="50" height="60" rx="4" fill="#54C6C7"/>
+  <rect x="360" y="190" width="50" height="110" fill="#8B5A32"/>
+  <rect x="510" y="110" width="210" height="190" fill="#54C6C7"/>
+  <polygon points="500,110 615,60 730,110" fill="#3EAEB0"/>
+  <rect x="545" y="140" width="40" height="50" fill="#F8F4E0"/>
+  <rect x="610" y="140" width="40" height="50" fill="#F8F4E0"/>
+  <rect x="580" y="210" width="50" height="90" fill="#F8F4E0"/>
+  <circle cx="160" cy="400" r="36" fill="#6BB24A"/>
+  <rect x="154" y="424" width="10" height="28" fill="#8B5A32"/>
+  <circle cx="720" cy="390" r="44" fill="#6BB24A"/>
+  <rect x="714" y="420" width="10" height="30" fill="#8B5A32"/>
+</svg>

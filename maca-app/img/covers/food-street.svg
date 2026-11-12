@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice">
+  <rect width="800" height="500" fill="#FCE8D2"/>
+  <rect x="0" y="0" width="800" height="280" fill="#F7D7C3"/>
+  <!-- shop row -->
+  <rect x="40" y="80" width="180" height="250" fill="#E07A8A"/>
+  <rect x="60" y="110" width="50" height="60" fill="#F8EFC8"/>
+  <rect x="130" y="110" width="50" height="60" fill="#F8EFC8"/>
+  <rect x="90" y="200" width="70" height="130" fill="#6B3A2A"/>
+  <rect x="230" y="50" width="200" height="280" fill="#F0D56A"/>
+  <rect x="255" y="80" width="60" height="70" fill="#F8F4E0"/>
+  <rect x="345" y="80" width="60" height="70" fill="#F8F4E0"/>
+  <rect x="300" y="200" width="70" height="130" fill="#6B3A2A"/>
+  <rect x="440" y="100" width="170" height="230" fill="#54C6C7"/>
+  <rect x="460" y="130" width="50" height="55" fill="#F8F4E0"/>
+  <rect x="530" y="130" width="50" height="55" fill="#F8F4E0"/>
+  <rect x="490" y="210" width="70" height="120" fill="#6B3A2A"/>
+  <rect x="620" y="70" width="160" height="260" fill="#F1879E"/>
+  <rect x="645" y="100" width="50" height="60" fill="#F8F4E0"/>
+  <rect x="710" y="100" width="50" height="60" fill="#F8F4E0"/>
+  <rect x="670" y="200" width="70" height="130" fill="#6B3A2A"/>
+  <!-- awnings -->
+  <path d="M30 80 h200 l-10 30 h-180 z" fill="#C45A6A"/>
+  <path d="M220 50 h220 l-10 30 h-200 z" fill="#E0C050"/>
+  <path d="M430 100 h190 l-10 28 h-170 z" fill="#3EAEB0"/>
+  <path d="M610 70 h180 l-10 30 h-160 z" fill="#D46780"/>
+  <!-- street -->
+  <rect x="0" y="330" width="800" height="170" fill="#E8D9B0"/>
+  <path d="M0 360 Q100 340 200 360 T400 360 T600 360 T800 360 V430 Q700 410 600 430 T400 430 T200 430 T0 430 Z" fill="#4C4D4F"/>
+  <!-- lanterns -->
+  <g fill="#E85A4A">
+    <ellipse cx="120" cy="70" rx="10" ry="14"/>
+    <ellipse cx="330" cy="40" rx="10" ry="14"/>
+    <ellipse cx="520" cy="90" rx="10" ry="14"/>
+    <ellipse cx="700" cy="60" rx="10" ry="14"/>
+  </g>
+</svg>

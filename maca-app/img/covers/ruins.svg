@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice">
+  <rect width="800" height="500" fill="#E9F2F0"/>
+  <rect x="0" y="360" width="800" height="140" fill="#8FCB5C"/>
+  <rect x="0" y="400" width="800" height="100" fill="#F3E6C0"/>
+  <path d="M0 430 Q80 410 160 430 T320 430 T480 430 T640 430 T800 430 V500 H0 Z" fill="#4C4D4F"/>
+  <g transform="translate(220,70) scale(1.6)">
+    <path fill="#C4A986" d="M8 200 L8 90 L30 90 L30 50 L80 50 L80 24 L120 24 L120 50 L170 50 L170 90 L192 90 L192 200 Z"/>
+    <path fill="#B59774" d="M70 50 L120 8 L170 50 Z"/>
+    <path fill="#C4A986" d="M80 50 L120 20 L160 50 Z"/>
+    <rect x="24" y="104" width="28" height="48" rx="14" fill="#EDE3D0"/>
+    <rect x="70" y="100" width="36" height="56" rx="2" fill="#D9C6A8"/>
+    <rect x="78" y="110" width="20" height="34" fill="#8E7A5E"/>
+    <rect x="140" y="104" width="28" height="48" rx="14" fill="#EDE3D0"/>
+    <path d="M24 168 h28 v28 a14 14 0 0 1 -28 0 z" fill="#EDE3D0"/>
+    <path d="M70 164 h36 v32 a18 18 0 0 1 -36 0 z" fill="#E8D9C0"/>
+    <path d="M140 168 h28 v28 a14 14 0 0 1 -28 0 z" fill="#EDE3D0"/>
+    <rect x="118" y="-6" width="5" height="18" fill="#B59774"/>
+    <rect x="111" y="0" width="19" height="5" fill="#B59774"/>
+  </g>
+  <circle cx="80" cy="340" r="40" fill="#6BB24A"/>
+  <rect x="75" y="368" width="10" height="30" fill="#8B5A32"/>
+  <circle cx="700" cy="330" r="50" fill="#6BB24A"/>
+  <rect x="695" y="360" width="10" height="40" fill="#8B5A32"/>
+</svg>
